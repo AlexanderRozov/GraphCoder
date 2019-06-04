@@ -1,60 +1,58 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.IO;
 
 namespace WindowsFormsApp2
 {
-    public class Clipher
+    /// <summary>
+    /// Класс реализует шифрование по аналогичное методу https://ru.wikipedia.org/wiki/Advanced_Encryption_Standard
+    /// </summary>
+    public class CIPHER
     {
-        public string decrypt;
-        readonly string Original;
-        public byte[] encrypted;
+        public string decrypt; // данные для дешифровки
+        readonly string Original; // данные для шифровки
+        public byte[] encrypted; // зашифрованные биты
         private byte[] imageData;
 
-        public Clipher(string _original)
+        public CIPHER(string _original) // конструктор класса принимает стороку данных созданую их изображения
         {
             Original = _original;
-          //  Original = "Here is some data to encrypt!";
+      
             string decrypt;
 
-            // Create a new instance of the Rijndael 
-            // class.  This generates a new key and initialization  
-            // vector (IV). 
+           // Создаёт новый экземпляр класса Rijndael.Это генерирует новый ключ и вектор инициализации
             using (Rijndael myRijndael = Rijndael.Create())
             {
-                // Encrypt the string to an array of bytes. 
+              
                 encrypted = EncryptStringToBytes(Original, myRijndael.Key, myRijndael.IV);
 
-                // Decrypt the bytes to a string. 
+           
                 decrypt = DecryptStringFromBytes(encrypted, myRijndael.Key, myRijndael.IV);
 
-                //Display the original data and the decrypted data.
+            
                 Console.WriteLine("Original:   {0}", Original);
                 Console.WriteLine("Round Trip: {0}", decrypt);
             }
         }
-
-        public Clipher(byte[] imageData)
-        {
-            this.imageData = imageData;
-        }
-
+        /// <summary>
+        /// функция шифрования
+        /// </summary>
+        /// <param name="plainText">текст для шифровки</param>
+        /// <param name="Key">ключ</param>
+        /// <param name="IV">вектор инициализаций</param>
+        /// <returns></returns>
         public  byte[] EncryptStringToBytes(string plainText, byte[] Key, byte[] IV)
         {
-           
+
             if (plainText == null || plainText.Length <= 0)
-                throw new ArgumentNullException("plainText");
+                throw new ArgumentNullException("plainText");// проверка на ошибку 1
             if (Key == null || Key.Length <= 0)
-                throw new ArgumentNullException("Key");
+                throw new ArgumentNullException("Key"); // проверка на ошибку 2
             if (IV == null || IV.Length <= 0)
-                throw new ArgumentNullException("Key");
-            byte[] encrypted;
+                throw new ArgumentNullException("Key"); 
+            byte[] encrypted; /// массиив куда положим шифрованное
           
-            using (Rijndael rijAlg = Rijndael.Create())
+            using (Rijndael rijAlg = Rijndael.Create()) // передаём паараметры фукции
             {
                 rijAlg.Key = Key;
                 rijAlg.IV = IV;
@@ -70,7 +68,7 @@ namespace WindowsFormsApp2
                         using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
                         {
 
-                            //Write all data to the stream.
+                           //кодируем переданный текст
                             swEncrypt.Write(plainText);
                         }
                         encrypted = msEncrypt.ToArray();
@@ -83,8 +81,14 @@ namespace WindowsFormsApp2
             return encrypted;
 
         }
-
-        public  string DecryptStringFromBytes(byte[] cipherText, byte[] Key, byte[] IV)
+        /// <summary>
+        /// функция дешифрования
+        /// </summary>
+        /// <param name="plainText">текст для шифровки</param>
+        /// <param name="Key">ключ</param>
+        /// <param name="IV">вектор инициализаций</param>
+        /// <returns></returns>
+        public string DecryptStringFromBytes(byte[] cipherText, byte[] Key, byte[] IV)
         {
             // Check arguments. 
             if (cipherText == null || cipherText.Length <= 0)
@@ -116,8 +120,7 @@ namespace WindowsFormsApp2
                         using (StreamReader srDecrypt = new StreamReader(csDecrypt))
                         {
 
-                            // Read the decrypted bytes from the decrypting stream 
-                            // and place them in a string.
+                           
                             plaintext = srDecrypt.ReadToEnd();
                         }
                     }
